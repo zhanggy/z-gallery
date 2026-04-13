@@ -1,0 +1,88 @@
+const photos = [
+  {
+    id: 1,
+    src: 'https://picsum.photos/800/600?random=1',
+    thumb: 'https://picsum.photos/400/300?random=1',
+    title: 'Mountain Sunrise',
+    description: 'A breathtaking view of the sun rising over misty mountain peaks.',
+  },
+  {
+    id: 2,
+    src: 'https://picsum.photos/800/600?random=2',
+    thumb: 'https://picsum.photos/400/300?random=2',
+    title: 'Ocean Waves',
+    description: 'Powerful waves crashing against a rocky shoreline at dusk.',
+  },
+  {
+    id: 3,
+    src: 'https://picsum.photos/800/600?random=3',
+    thumb: 'https://picsum.photos/400/300?random=3',
+    title: 'Forest Path',
+    description: 'A serene path winding through an ancient, mossy forest.',
+  },
+  {
+    id: 4,
+    src: 'https://picsum.photos/800/600?random=4',
+    thumb: 'https://picsum.photos/400/300?random=4',
+    title: 'Desert Dunes',
+    description: 'Endless golden sand dunes stretching to the horizon.',
+  },
+  {
+    id: 5,
+    src: 'https://picsum.photos/800/600?random=5',
+    thumb: 'https://picsum.photos/400/300?random=5',
+    title: 'City Lights',
+    description: 'A vibrant cityscape glittering with thousands of lights at night.',
+  },
+  {
+    id: 6,
+    src: 'https://picsum.photos/800/600?random=6',
+    thumb: 'https://picsum.photos/400/300?random=6',
+    title: 'Wildflower Meadow',
+    description: 'A colorful meadow bursting with wildflowers in full bloom.',
+  },
+  {
+    id: 7,
+    src: 'https://picsum.photos/800/600?random=7',
+    thumb: 'https://picsum.photos/400/300?random=7',
+    title: 'Snowy Peaks',
+    description: 'Snow-capped peaks reflecting in a crystal-clear alpine lake.',
+  },
+  {
+    id: 8,
+    src: 'https://picsum.photos/800/600?random=8',
+    thumb: 'https://picsum.photos/400/300?random=8',
+    title: 'Autumn Colors',
+    description: 'A forest ablaze with the warm reds and golds of autumn.',
+  },
+  {
+    id: 9,
+    src: 'https://picsum.photos/800/600?random=9',
+    thumb: 'https://picsum.photos/400/300?random=9',
+    title: 'Coastal Cliffs',
+    description: 'Dramatic sea cliffs carved by centuries of wind and water.',
+  },
+  {
+    id: 10,
+    src: 'https://picsum.photos/800/600?random=10',
+    thumb: 'https://picsum.photos/400/300?random=10',
+    title: 'Countryside Road',
+    description: 'A quiet country road flanked by rolling green hills.',
+  },
+  {
+    id: 11,
+    src: 'https://picsum.photos/800/600?random=11',
+    thumb: 'https://picsum.photos/400/300?random=11',
+    title: 'Waterfall',
+    description: 'A majestic waterfall cascading into a jade-green pool below.',
+  },
+  {
+    id: 12,
+    src: 'https://picsum.photos/800/600?random=12',
+    thumb: 'https://picsum.photos/400/300?random=12',
+    title: 'Starry Night',
+    description: 'A mesmerizing view of the Milky Way over an open plain.',
+  },
+];
+
+export default photos;
