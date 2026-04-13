@@ -85,13 +85,16 @@ function mockApiPlugin(): Plugin {
 // ────────────────────────────────────────────────────────────────────────────
 
 export default defineConfig({
+  // Use relative asset URLs so deployed builds work under subpaths/proxies.
+  base: './',
   plugins: [react(), mockApiPlugin()],
   server: {
-    host: '127.0.0.1',
+    // Expose dev server on LAN (e.g. 192.168.x.x)
+    host: true,
     port: 3000,
     proxy: {
       '/api/gallery': {
-        target: 'http://172.27.67.195:3008',
+        target: 'http://192.168.100.188:3008',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/gallery/, ''),
       },

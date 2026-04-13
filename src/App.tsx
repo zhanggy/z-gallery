@@ -8,7 +8,7 @@ import type { DirNode } from './DirectoryTree';
 import { useImagePreloader } from './hooks/useImagePreloader';
 
 const API_DIRS = '/api/gallery/';
-const API_IMAGES = '/api/gallery/';
+const URL_PREFIX = '/store';
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null;
@@ -43,7 +43,7 @@ const joinPath = (basePath: string, fileName: string): string => {
 
 const extractImageUrls = (payload: unknown): string[] => {
   const basePath = isRecord(payload) && typeof payload.path === 'string'
-    ? payload.path
+    ? URL_PREFIX + payload.path
     : '';
 
   const rawFiles = Array.isArray(payload)
@@ -78,7 +78,6 @@ function App() {
   const [lightbox, setLightbox] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
-  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const postWithPath = async (url: string, path: string) => {
     const res = await fetch(url, {
@@ -91,16 +90,11 @@ function App() {
     return res.json();
   };
 
-  const scheduleHideSidebar = () => {
-    if (hideTimer.current) clearTimeout(hideTimer.current);
-    hideTimer.current = setTimeout(() => setSidebarOpen(false), 2000);
-  };
-
   const fetchImagesByPath = (path: string) => {
     setImagesLoading(true);
     setImages([]);
     setCurrent(0);
-    postWithPath(API_IMAGES, path)
+    postWithPath(API_DIRS, path)
       .then((data) => {
         setImages(extractImageUrls(data));
       })
@@ -184,7 +178,6 @@ function App() {
   const handleDirSelect = (path: string) => {
     setSelectedDir(path);
     fetchImagesByPath(path);
-    scheduleHideSidebar();
   };
 
   const renderGalleryContent = () => {
