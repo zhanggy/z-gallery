@@ -91,7 +91,7 @@ export default defineConfig({
   server: {
     // Expose dev server on LAN (e.g. 192.168.x.x)
     host: true,
-    port: 3000,
+    port: 8088,
     proxy: {
       '/api/gallery': {
         target: 'http://192.168.100.188:3008',

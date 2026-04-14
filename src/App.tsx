@@ -69,12 +69,14 @@ const extractImageUrls = (payload: unknown): string[] => {
 };
 
 function App() {
+  const CONTROL_REVEAL_HEIGHT = 120;
   const [dirTree, setDirTree] = useState<DirNode[]>([]);
   const [selectedDir, setSelectedDir] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [images, setImages] = useState<string[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
   const [current, setCurrent] = useState(0);
+  const [controlsVisible, setControlsVisible] = useState(true);
   const [lightbox, setLightbox] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
@@ -94,6 +96,7 @@ function App() {
     setImagesLoading(true);
     setImages([]);
     setCurrent(0);
+    setControlsVisible(true);
     postWithPath(API_DIRS, path)
       .then((data) => {
         setImages(extractImageUrls(data));
@@ -148,12 +151,21 @@ function App() {
   // Keyboard navigation for PC
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') prevImage();
-      if (e.key === 'ArrowRight') nextImage();
+      if (images.length === 0) return;
+      if (e.key === 'ArrowLeft') {
+        prevImage();
+        setSidebarOpen(false);
+        setControlsVisible(false);
+      }
+      if (e.key === 'ArrowRight') {
+        nextImage();
+        setSidebarOpen(false);
+        setControlsVisible(false);
+      }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  });
+  }, [images.length]);
 
   // Swipe navigation for mobile
   const onTouchStart = (e: React.TouchEvent) => {
@@ -163,17 +175,36 @@ function App() {
     touchEndX.current = e.changedTouches[0].clientX;
     if (touchStartX.current !== null && touchEndX.current !== null) {
       const dx = touchEndX.current - touchStartX.current;
-      if (dx > 50) prevImage();
-      if (dx < -50) nextImage();
+      if (dx > 50) {
+        prevImage();
+        setControlsVisible(false);
+      }
+      if (dx < -50) {
+        nextImage();
+        setControlsVisible(false);
+      }
     }
     touchStartX.current = null;
     touchEndX.current = null;
   };
 
-  const prevImage = () => setCurrent((c) => (c > 0 ? c - 1 : images.length - 1));
-  const nextImage = () => setCurrent((c) => (c < images.length - 1 ? c + 1 : 0));
+  const prevImage = () => {
+    if (images.length === 0) return;
+    setCurrent((c) => (c > 0 ? c - 1 : images.length - 1));
+  };
+  const nextImage = () => {
+    if (images.length === 0) return;
+    setCurrent((c) => (c < images.length - 1 ? c + 1 : 0));
+  };
 
-  const { getCachedUrl } = useImagePreloader(images, current);
+  const handleGalleryMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (!selectedDir || imagesLoading || images.length === 0) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const shouldShow = e.clientY >= rect.bottom - CONTROL_REVEAL_HEIGHT;
+    setControlsVisible((visible) => (visible === shouldShow ? visible : shouldShow));
+  };
+
+  const { preloadSources } = useImagePreloader(images, current);
 
   const handleDirSelect = (path: string) => {
     setSelectedDir(path);
@@ -200,7 +231,7 @@ function App() {
     }
     return (
       <ImageViewer
-        src={getCachedUrl(images[current])}
+        src={images[current]}
         alt={`${selectedDir} - ${current + 1}`}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
@@ -233,10 +264,20 @@ function App() {
         {sidebarOpen ? '◀' : '▶'}
       </button>
 
-      <main className="gallery-main" onClick={() => setSidebarOpen(false)}>
+      <main
+        className="gallery-main"
+        onClick={() => setSidebarOpen(false)}
+        onMouseMove={handleGalleryMouseMove}
+        onMouseLeave={() => setControlsVisible(false)}
+      >
+        <div aria-hidden="true" style={{ display: 'none' }}>
+          {preloadSources.map((src) => (
+            <img key={src} src={src} alt="" loading="eager" decoding="async" />
+          ))}
+        </div>
         {renderGalleryContent()}
         {images.length > 0 && selectedDir && !imagesLoading && (
-          <div className="gallery-controls">
+          <div className={`gallery-controls${controlsVisible ? '' : ' hidden'}`}>
             <button onClick={prevImage} aria-label="Previous image">⟨</button>
             <span>{current + 1} / {images.length}</span>
             <button onClick={nextImage} aria-label="Next image">⟩</button>
@@ -244,7 +285,7 @@ function App() {
         )}
         {lightbox && images.length > 0 && (
           <Lightbox
-            src={getCachedUrl(images[current])}
+            src={images[current]}
             alt={`Gallery ${current + 1}`}
             onClose={() => setLightbox(false)}
           />

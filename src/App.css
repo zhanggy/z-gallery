@@ -153,6 +153,14 @@ html, body {
   border-radius: 32px;
   padding: 6px 20px;
   color: #fff;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.18s ease;
+}
+
+.gallery-controls.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .gallery-controls button {
