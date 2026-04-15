@@ -31,7 +31,23 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 The app expects an endpoint `/api/images` that returns a JSON array of image URLs, e.g.:
 
 ```json
-["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+{
+  "name": "2024",
+  "path": "/2024",
+  "subdirs": [
+    {
+      "name": "01",
+      "path": "/2024/01"
+    },
+    {
+      "name": "02",
+      "path": "/2024/02"
+    }
+  ],
+  "files": [
+    "IMG_0001.jpg", "IMG_0002.jpg"
+  ]
+}
 ```
 
 If the endpoint is unavailable, demo images from Unsplash will be shown.

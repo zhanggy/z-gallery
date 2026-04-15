@@ -16,8 +16,8 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
 const extractDirNodes = (payload: unknown): DirNode[] => {
   const rawDirs = Array.isArray(payload)
     ? payload
-    : isRecord(payload) && Array.isArray(payload.dirs)
-      ? payload.dirs
+    : isRecord(payload) && Array.isArray(payload.subdirs)
+      ? payload.subdirs
       : [];
 
   return rawDirs
@@ -103,13 +103,7 @@ function App() {
       })
       .catch(() => {
         // Fallback demo images
-        setImages([
-          'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-          'https://images.unsplash.com/photo-1465101046530-73398c7f28ca',
-          'https://images.unsplash.com/photo-1519125323398-675f0ddb6308',
-          'https://images.unsplash.com/photo-1472214103451-9374bd1c798e',
-          'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429',
-        ]);
+        setImages([]);
       })
       .finally(() => setImagesLoading(false));
   };
