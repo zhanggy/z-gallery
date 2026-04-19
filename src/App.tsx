@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import './App.css';
 import ImageViewer from './ImageViewer';
 import Lightbox from './Lightbox';
@@ -9,6 +9,23 @@ import { useImagePreloader } from './hooks/useImagePreloader';
 
 const API_DIRS = '/api/gallery/';
 const URL_PREFIX = '/store';
+const DEFAULT_SIDEBAR_WIDTH = 220;
+const MIN_SIDEBAR_WIDTH = 180;
+const MAX_SIDEBAR_WIDTH = 480;
+const SIDEBAR_WIDTH_STORAGE_KEY = 'z-gallery-sidebar-width';
+
+const clampSidebarWidth = (width: number) =>
+  Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, width));
+
+const getInitialSidebarWidth = () => {
+  if (typeof window === 'undefined') return DEFAULT_SIDEBAR_WIDTH;
+
+  const stored = window.localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY);
+  if (stored === null) return DEFAULT_SIDEBAR_WIDTH;
+
+  const parsed = Number(stored);
+  return Number.isFinite(parsed) ? clampSidebarWidth(parsed) : DEFAULT_SIDEBAR_WIDTH;
+};
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null;
@@ -73,6 +90,8 @@ function App() {
   const [dirTree, setDirTree] = useState<DirNode[]>([]);
   const [selectedDir, setSelectedDir] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarWidth, setSidebarWidth] = useState(getInitialSidebarWidth);
+  const [isResizingSidebar, setIsResizingSidebar] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
   const [current, setCurrent] = useState(0);
@@ -106,6 +125,42 @@ function App() {
         setImages([]);
       })
       .finally(() => setImagesLoading(false));
+  };
+
+  useEffect(() => {
+    window.localStorage.setItem(SIDEBAR_WIDTH_STORAGE_KEY, String(sidebarWidth));
+  }, [sidebarWidth]);
+
+  useEffect(() => {
+    if (!isResizingSidebar) return;
+
+    const handleMouseMove = (event: MouseEvent) => {
+      setSidebarWidth(clampSidebarWidth(event.clientX));
+      setSidebarOpen(true);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizingSidebar(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'ew-resize';
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    };
+  }, [isResizingSidebar]);
+
+  const handleSidebarResizeStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSidebarOpen(true);
+    setIsResizingSidebar(true);
   };
 
   // Fetch directory tree on startup
@@ -200,6 +255,10 @@ function App() {
 
   const { preloadSources } = useImagePreloader(images, current);
 
+  const layoutStyle = {
+    '--sidebar-width': `${sidebarWidth}px`,
+  } as CSSProperties;
+
   const handleDirSelect = (path: string) => {
     setSelectedDir(path);
     fetchImagesByPath(path);
@@ -235,7 +294,7 @@ function App() {
   };
 
   return (
-    <div className="gallery-layout">
+    <div className={`gallery-layout${isResizingSidebar ? ' resizing' : ''}`} style={layoutStyle}>
       <aside className={`dir-sidebar${sidebarOpen ? '' : ' collapsed'}`}>
         <div className="sidebar-header">
           <span className="sidebar-title">目录</span>
@@ -248,6 +307,14 @@ function App() {
             onLoadChildren={loadChildren}
           />
         </div>
+        {sidebarOpen && (
+          <div
+            className="sidebar-resizer"
+            onMouseDown={handleSidebarResizeStart}
+            aria-label="Resize sidebar"
+            role="separator"
+          />
+        )}
       </aside>
 
       <button

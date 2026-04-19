@@ -8,6 +8,7 @@ html, body {
 
 /* ── Layout ── */
 .gallery-layout {
+  --sidebar-width: 220px;
   position: fixed;
   top: 0;
   left: 0;
@@ -21,8 +22,9 @@ html, body {
 
 /* ── Sidebar ── */
 .dir-sidebar {
-  width: 220px;
-  min-width: 220px;
+  position: relative;
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
   height: 100vh;
   background: #141414;
   border-right: 1px solid #2a2a2a;
@@ -68,11 +70,31 @@ html, body {
   border-radius: 2px;
 }
 
+.sidebar-resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 11;
+  background: transparent;
+}
+
+.sidebar-resizer:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.gallery-layout.resizing .dir-sidebar,
+.gallery-layout.resizing .sidebar-toggle {
+  transition: none;
+}
+
 /* ── Sidebar toggle button ── */
 .sidebar-toggle {
   position: absolute;
   top: 50%;
-  left: 220px;
+  left: var(--sidebar-width);
   transform: translate(-50%, -50%);
   z-index: 10;
   width: 20px;
