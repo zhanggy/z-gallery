@@ -58,6 +58,11 @@ const joinPath = (basePath: string, fileName: string): string => {
   return `${base}/${file}`;
 };
 
+type LightboxFocusPoint = {
+  xRatio: number;
+  yRatio: number;
+};
+
 const extractImageUrls = (payload: unknown): string[] => {
   const basePath = isRecord(payload) && typeof payload.path === 'string'
     ? URL_PREFIX + payload.path
@@ -97,6 +102,7 @@ function App() {
   const [current, setCurrent] = useState(0);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [lightbox, setLightbox] = useState(false);
+  const [lightboxFocusPoint, setLightboxFocusPoint] = useState<LightboxFocusPoint | null>(null);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
@@ -259,6 +265,18 @@ function App() {
     '--sidebar-width': `${sidebarWidth}px`,
   } as CSSProperties;
 
+  const handleImageDoubleClick = (e: React.MouseEvent<HTMLImageElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const xRatio = (e.clientX - rect.left) / rect.width;
+    const yRatio = (e.clientY - rect.top) / rect.height;
+
+    setLightboxFocusPoint({
+      xRatio: Math.min(1, Math.max(0, xRatio)),
+      yRatio: Math.min(1, Math.max(0, yRatio)),
+    });
+    setLightbox(true);
+  };
+
   const handleDirSelect = (path: string) => {
     setSelectedDir(path);
     fetchImagesByPath(path);
@@ -288,7 +306,7 @@ function App() {
         alt={`${selectedDir} - ${current + 1}`}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
-        onDoubleClick={() => setLightbox(true)}
+        onDoubleClick={handleImageDoubleClick}
       />
     );
   };
@@ -348,6 +366,7 @@ function App() {
           <Lightbox
             src={images[current]}
             alt={`Gallery ${current + 1}`}
+            initialFocusPoint={lightboxFocusPoint}
             onClose={() => setLightbox(false)}
           />
         )}
