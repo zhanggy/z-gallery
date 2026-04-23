@@ -89,9 +89,10 @@ export default defineConfig({
   base: './',
   plugins: [react(), mockApiPlugin()],
   server: {
-    // Expose dev server on LAN (e.g. 192.168.x.x)
-    host: true,
-    port: 8088,
+    // Bind locally to avoid Windows permission issues on 0.0.0.0.
+    host: '127.0.0.1',
+    port: 3000,
+    strictPort: false,
     proxy: {
       '/api/gallery': {
         target: 'http://192.168.100.188:3008',

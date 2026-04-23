@@ -300,9 +300,11 @@ function App() {
         </div>
       );
     }
+    const src = images[current];
+    const isVideo = /\.(mp4|webm|ogg|mov|m4v|avi|wmv)(\?.*)?$/i.test(src);
     return (
       <ImageViewer
-        src={images[current]}
+        src={isVideo ? src : preloadSources.includes(src) ? src : src}
         alt={`${selectedDir} - ${current + 1}`}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
